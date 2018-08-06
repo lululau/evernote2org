@@ -40,7 +40,7 @@ module Evernote2org
     end
 
     def consistent_file_name
-      @title.gsub(/[[:punct:][:space:]]/, '_')
+      @title.gsub(/[[:punct:][:space:]]+/, '_')
     end
 
     def make_resources_dir(out_dir)
