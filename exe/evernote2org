@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require 'evernote2org/cli'
+
+Evernote2org::Cli.start
