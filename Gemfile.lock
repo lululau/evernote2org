@@ -1,7 +1,10 @@
 PATH
   remote: .
   specs:
-    evernote2org (0.1.1)
+    evernote2org (0.1.2)
+      activesupport
+      nokogiri
+      pandoc-ruby
 
 GEM
   remote: https://gems.ruby-china.com/
@@ -55,11 +58,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activesupport
   bundler (~> 1.16)
   evernote2org!
-  nokogiri
-  pandoc-ruby
   pry-byebug
   pry-doc
   rake (~> 10.0)
