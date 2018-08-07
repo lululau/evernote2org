@@ -67,6 +67,7 @@ module Evernote2org
     def parse_content
       content = Nokogiri::XML(@doc.css('content').first.content).css('en-note').first
       @resources.each do |resource|
+        next unless resource.id
         img_tag = resource.to_img_tag(export_dir_name, content)
         en_media = content.css("en-media[hash=\"#{resource.id}\"]").first
         en_media.add_next_sibling(img_tag)
