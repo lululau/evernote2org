@@ -7,13 +7,16 @@ module Evernote2org
 
     def initialize(doc)
       @doc = doc
-      @id = Nokogiri::XML(@doc.css('recognition').first.content).css('recoIndex').first.attr('objID')
+      if recognition = @doc.css('recognition').first
+        @id = Nokogiri::XML(recognition.content).css('recoIndex').first.attr('objID')
+      end
       @mime = @doc.css('mime').first.content
       @file_ext_name = '.' + @mime.split('/').last
       @binary = Base64.decode64(@doc.css('data').first.content)
     end
 
     def export_to(out_dir)
+      return unless @id
       File.open(File.join(out_dir, file_name), 'w') do |resource_file|
         resource_file.write(binary)
       end

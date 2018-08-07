@@ -35,7 +35,7 @@ module Evernote2org
                              {from: :html, to: :org},
                              :s,
                              {wrap: :none},
-                             {M: "title='#{@title}'"},
+                             {M: "title='#{@title.gsub(/'/, '')}'"},
                              {M: "date=#{@created_at.to_date.to_s(:db)}"},
                              {M: "include-before='#{include_before}'"}).convert
         org.gsub!(%r{\[\[(https?://[^\]]+)\]\[{1,4}\1\]{1,4}\]}, '[[$1]]')
@@ -67,6 +67,7 @@ module Evernote2org
     def parse_content
       content = Nokogiri::XML(@doc.css('content').first.content).css('en-note').first
       @resources.each do |resource|
+        next unless resource.id
         img_tag = resource.to_img_tag(export_dir_name, content)
         en_media = content.css("en-media[hash=\"#{resource.id}\"]").first
         en_media.add_next_sibling(img_tag)
