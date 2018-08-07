@@ -15,7 +15,7 @@ module Evernote2org
       @resources = @doc.css('resource').map { |res| Resource.new(res) }
       @content = parse_content
       @author = @doc.css('author').first&.content
-      @url = @doc.css('source_url').first&.content
+      @url = @doc.css('source-url').first&.content
       @created_at = Time.strptime(@doc.css('created').first.content, '%Y%m%dT%H%M%SZ')
     end
 
@@ -29,7 +29,18 @@ module Evernote2org
 
     def export_content(out_dir)
       File.open(File.join(out_dir, consistent_file_name + '.org'), 'w') do |out_file|
-        out_file.write(PandocRuby.new(@content.to_s, from: :html, to: :org).convert)
+        content = @content.to_s.gsub('&nbsp;', '')
+        include_before = format('LINK: %s', @url)
+        org = PandocRuby.new(content,
+                             {from: :html, to: :org},
+                             :s,
+                             {wrap: :none},
+                             {M: "title='#{@title}'"},
+                             {M: "date=#{@created_at.to_date.to_s(:db)}"},
+                             {M: "include-before='#{include_before}'"}).convert
+        org.gsub!(%r{\[\[(https?://[^\]]+)\]\[{1,4}\1\]{1,4}\]}, '[[$1]]')
+        org.gsub!(%r{\[\[[^\[\]]*\]\[\]\]}, '')
+        out_file.write(org)
       end
     end
 
@@ -40,7 +51,7 @@ module Evernote2org
     end
 
     def consistent_file_name
-      @title.gsub(/[[:punct:][:space:]]+/, '_')
+      @title.gsub(/[[:punct:][:space:]]+/, '_').gsub(/^_/, '').gsub(/_$/, '')
     end
 
     def make_resources_dir(out_dir)
