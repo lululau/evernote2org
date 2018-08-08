@@ -10,13 +10,18 @@ module Evernote2org
       if recognition = @doc.css('recognition').first
         @id = Nokogiri::XML(recognition.content).css('recoIndex').first.attr('objID')
       end
-      @mime = @doc.css('mime').first.content
-      @file_ext_name = '.' + @mime.split('/').last
-      @binary = Base64.decode64(@doc.css('data').first.content)
+
+      if @mime = @doc.css('mime').first&.content
+        @file_ext_name = '.' + @mime.split('/').last
+      end
+
+      if data = @doc.css('data').first
+        @binary = Base64.decode64(data.content)
+      end
     end
 
     def export_to(out_dir)
-      return unless @id
+      return unless @id && @mime
       File.open(File.join(out_dir, file_name), 'w') do |resource_file|
         resource_file.write(binary)
       end
